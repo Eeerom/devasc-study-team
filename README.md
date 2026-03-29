@@ -1,20 +1,32 @@
-# Student Project: Joke of the Day REST API
+# 🃏 Joke of the Day Web App
 
-## Project Overview
-This is a Python-based application developed as part of a DevOps/DEVASC study project. It retrieves random jokes from a public REST API and displays them to the user.
+A modern, cloud-hosted web application that fetches real-time jokes from a REST API. This project was developed as part of the DEVASC (DevNet Associate) study curriculum to demonstrate full-stack Python development and Continuous Deployment (CD) workflows.
 
-## Features
-- **REST API Integration:** Uses the `requests` library to fetch data.
-- **Error Handling:** Implements `try-except` blocks for network resilience.
-- **Unit Testing:** Includes a test suite to verify API connectivity.
-- **Git Workflow:** Developed using branch-based collaboration.
+## 🚀 Live Demo
+You can access the live application here: 
+👉 [https://joke-of-the-day-w07a.onrender.com](https://joke-of-the-day-w07a.onrender.com)
 
-## Setup & Installation (VirtualBox/Linux)
-1. Ensure you are in your virtual environment:
-   `source venv/bin/activate`
-2. Install dependencies:
-   `pip install requests`
+## ✨ Features
+- **Dynamic Content:** Fetches random jokes using the Official Joke API.
+- **Real-time Date:** Automatically displays the current date using Python's `datetime` library.
+- **Responsive Design:** A clean, mobile-friendly UI built with CSS3 gradients and card layouts.
+- **Cloud Hosted:** Fully deployed on Render with automatic updates via GitHub.
 
-## How to Run
-- **Launch the App:** `python3 app.py`
-- **Run Unit Tests:** `python3 test_app.py`
+## 🛠️ Tech Stack
+- **Language:** Python 3.x
+- **Framework:** Flask (Micro-web framework)
+- **API:** RESTful API integration via `requests`
+- **Frontend:** HTML5 & CSS3
+- **Deployment:** Render PaaS (Platform as a Service)
+
+## 💻 Local Setup & Installation
+
+### Prerequisites
+- Python 3.10+ installed
+- VirtualBox (optional, if running in a VM)
+
+### Steps
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/Eeerom/devasc-study-team.git](https://github.com/Eeerom/devasc-study-team.git)
+   cd devasc-study-team
