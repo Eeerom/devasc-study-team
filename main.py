@@ -1,72 +1,93 @@
-from flask import Flask
+from flask import Flask, render_template_string
 import requests
 from datetime import datetime
 
 app = Flask(__name__)
 
+# The HTML template remains as a constant string
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joke of the Day</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+            text-align: center; 
+            max-width: 450px; 
+            width: 90%; 
+        }
+        h1 { color: #333; margin-bottom: 1.5rem; }
+        p { color: #555; line-height: 1.6; font-size: 1.1rem; }
+        .setup { font-weight: bold; color: #764ba2; }
+        .punchline { margin-top: 1rem; color: #444; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 1.5rem 0; }
+        small { color: #888; display: block; margin-bottom: 1rem; }
+        button { 
+            background: #764ba2; 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            transition: transform 0.2s, background 0.2s; 
+        }
+        button:hover { 
+            background: #667eea; 
+            transform: scale(1.05); 
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Daily Joke API</h1>
+        <p class="setup">{{ setup }}</p>
+        <p class="punchline"><em>{{ punchline }}</em></p>
+        <hr>
+        <small>Server Time: {{ date }}</small>
+        <button onclick="window.location.reload();">Get New Joke</button>
+    </div>
+</body>
+</html>
+"""
+
 @app.route('/')
-def display_joke():
-    current_date = datetime.now().strftime('%B %d, %Y')
-    url = "https://official-joke-api.appspot.com/random_joke"
+def home():
+    # CRITICAL: This variable must stay inside the route function 
+    # so it updates on every page refresh.
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     try:
-        r = requests.get(url)
-        data = r.json()
-        return f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Joke of the Day</title>
-            <style>
-                body {{
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    height: 100vh;
-                    margin: 0;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    color: #333;
-                }}
-                .card {{
-                    background: white;
-                    padding: 40px;
-                    border-radius: 20px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-                    max-width: 500px;
-                    width: 90%;
-                    text-align: center;
-                }}
-                h1 {{ color: #4a5568; font-size: 1.2rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }}
-                .setup {{ font-size: 1.5rem; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }}
-                .punchline {{ font-size: 1.8rem; color: #5a67d8; font-weight: 800; margin-bottom: 30px; }}
-                button {{
-                    background-color: #5a67d8;
-                    color: white;
-                    border: none;
-                    padding: 12px 25px;
-                    border-radius: 10px;
-                    font-size: 1rem;
-                    cursor: pointer;
-                    transition: transform 0.2s, background 0.2s;
-                }}
-                button:hover {{ background-color: #4c51bf; transform: scale(1.05); }}
-                footer {{ margin-top: 20px; font-size: 0.8rem; color: #a0aec0; }}
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>{current_date}</h1>
-                <div class="setup">{data['setup']}</div>
-                <div class="punchline">{data['punchline']}</div>
-                <button onclick="window.location.reload();">Next Joke</button>
-                <footer>Created by Eeerom | DEVASC Project</footer>
-            </div>
-        </body>
-        </html>
-        """
-    except:
-        return "<h1>The joke server is offline. Check your internet!</h1>"
+        # Fetching data from the external REST API
+        response = requests.get("https://official-joke-api.appspot.com/random_joke", timeout=5)
+        data = response.json()
+        setup = data['setup']
+        punchline = data['punchline']
+    except Exception as e:
+        # Fallback in case the API is down
+        setup = "Why did the API stay home?"
+        punchline = "Because it had a bad connection."
+    
+    return render_template_string(
+        HTML_TEMPLATE, 
+        setup=setup, 
+        punchline=punchline,
+        date=current_time
+    )
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    # Set debug=False for production/Render deployment
+    app.run(debug=True)
