@@ -1,10 +1,9 @@
 from flask import Flask, render_template_string
 import requests
-from datetime import datetime
 
 app = Flask(__name__)
 
-# The HTML template remains as a constant string
+# Simplified HTML template focusing on the joke content
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -22,43 +21,64 @@ HTML_TEMPLATE = """
         }
         .card { 
             background: white; 
-            padding: 2.5rem; 
+            padding: 3rem; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
             text-align: center; 
-            max-width: 450px; 
+            max-width: 500px; 
             width: 90%; 
         }
-        h1 { color: #333; margin-bottom: 1.5rem; }
-        p { color: #555; line-height: 1.6; font-size: 1.1rem; }
-        .setup { font-weight: bold; color: #764ba2; }
-        .punchline { margin-top: 1rem; color: #444; }
-        hr { border: 0; border-top: 1px solid #eee; margin: 1.5rem 0; }
-        small { color: #888; display: block; margin-bottom: 1rem; }
+        h2 { 
+            color: #555; 
+            letter-spacing: 2px; 
+            font-size: 1rem; 
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        .setup { 
+            font-size: 1.4rem; 
+            color: #333; 
+            margin-bottom: 1.5rem; 
+            font-weight: 600;
+        }
+        .punchline { 
+            font-size: 1.6rem; 
+            color: #764ba2; 
+            margin-bottom: 2.5rem; 
+            font-weight: 800;
+        }
         button { 
             background: #764ba2; 
             color: white; 
             border: none; 
-            padding: 12px 25px; 
-            border-radius: 30px; 
+            padding: 15px 35px; 
+            border-radius: 10px; 
             cursor: pointer; 
-            font-size: 1rem; 
-            transition: transform 0.2s, background 0.2s; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            transition: all 0.3s ease; 
         }
         button:hover { 
             background: #667eea; 
-            transform: scale(1.05); 
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #bbb;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Daily Joke API</h1>
+        <h2>Joke of the Day</h2>
         <p class="setup">{{ setup }}</p>
-        <p class="punchline"><em>{{ punchline }}</em></p>
-        <hr>
-        <small>Server Time: {{ date }}</small>
-        <button onclick="window.location.reload();">Get New Joke</button>
+        <p class="punchline">{{ punchline }}</p>
+        
+        <button onclick="window.location.reload();">Next Joke</button>
+        
+        <footer>Created by Eeerom | DEVASC Project</footer>
     </div>
 </body>
 </html>
@@ -66,28 +86,19 @@ HTML_TEMPLATE = """
 
 @app.route('/')
 def home():
-    # CRITICAL: This variable must stay inside the route function 
-    # so it updates on every page refresh.
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
     try:
-        # Fetching data from the external REST API
+        # Fetching from the Public REST API
         response = requests.get("https://official-joke-api.appspot.com/random_joke", timeout=5)
         data = response.json()
         setup = data['setup']
         punchline = data['punchline']
-    except Exception as e:
-        # Fallback in case the API is down
-        setup = "Why did the API stay home?"
-        punchline = "Because it had a bad connection."
+    except Exception:
+        setup = "Connection Error"
+        punchline = "Could not reach the joke server."
     
-    return render_template_string(
-        HTML_TEMPLATE, 
-        setup=setup, 
-        punchline=punchline,
-        date=current_time
-    )
+    return render_template_string(HTML_TEMPLATE, setup=setup, punchline=punchline)
 
 if __name__ == '__main__':
-    # Set debug=False for production/Render deployment
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
